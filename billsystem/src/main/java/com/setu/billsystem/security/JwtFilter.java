@@ -43,9 +43,9 @@ public class JwtFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		Enumeration<String> headers = request.getHeaderNames();
+		
 		String authorization=request.getHeader("Authorization");
-		 
+		
 		DecodedJWT jwt = null;
 		
 		if(authorization!=null && authorization.startsWith("Bearer ")) {
@@ -68,8 +68,6 @@ public class JwtFilter extends OncePerRequestFilter{
 				SecurityContextHolder.getContext().setAuthentication(authReq);
 				
 			}
-		}else {
-			//SecurityContextHolder.getContext().setAuthentication(AuthenticationM);
 		}
 		
 		filterChain.doFilter(request, response);

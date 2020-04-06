@@ -18,9 +18,12 @@ public class BillRespository{
 	
 	public BillRespository() {
 		super();
-		bills.add(new Bill("12123131322", "2019-08-01T08:28:12Z", "ONE_TIME", "EXACT", new CustomerAccount("8208021440", "Rupesh"), new Aggregates(new Total("Total Outstanding", new Amount(99000.00)))));
-		bills.add(new Bill("12123131123", "2020-03-14T08:28:12Z", "MONTHLY", "EXACT", new CustomerAccount("8481779999", "Ashok"), new Aggregates(new Total("Total Outstanding", new Amount(75999.50)))));
-		
+		bills.add(new Bill("12123131322", "2020-04-02T19:49:00Z", "ONE_TIME", "EXACT", new CustomerAccount("8208021440", "Rupesh"), new Aggregates(new Total("Total Outstanding", new Amount(99000.00)))));
+		bills.add(new Bill("12123131123", "2020-04-10T19:20:00Z", "MONTHLY", "EXACT", new CustomerAccount("8481779999", "Ashok"), new Aggregates(new Total("Total Outstanding", new Amount(75999.50)))));
+		bills.add(new Bill("12123131124", "2020-04-13T19:49:00Z", "YEARLY", "EXACT", new CustomerAccount("8481778080", "Puneet"), new Aggregates(new Total("Total Outstanding", new Amount(80999.50)))));
+		bills.add(new Bill("12123131125", "2020-04-13T19:49:00Z", "ONE_TIME", "EXACT", new CustomerAccount("8481778080", "Puneet"), new Aggregates(new Total("Total Outstanding", new Amount(73.23)))));
+		bills.add(new Bill("12123131126", "2020-04-13T19:49:00Z", "MONTHLY", "EXACT", new CustomerAccount("8481778080", "Puneet"), new Aggregates(new Total("Total Outstanding", new Amount(102123.23)))));
+
 	}
 
 	public List<Bill> findByCustomerAccount(CustomerAccount customerAccount) {

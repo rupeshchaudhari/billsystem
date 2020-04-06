@@ -15,12 +15,12 @@ import com.setu.billsystem.requestresponse.receipt.FetchReceiptResponse;
 
 public interface BillService {
 	
-	public List<Bill> getCustomerBill(List<CustomerIdentifier> customerIdentifiers);
-	
 	public FetchBillResponse fetchBillResponse(FetchBillRequest billRequest);
 	
 	public Bill addBill(Bill bill);
 	
 	public FetchReceiptResponse fetchReceiptResponse(FetchReceiptRequest fetchReceiptRequest);
+
+	List<Bill> getCustomerBill(CustomerIdentifier customerIdentifier);
 	
 }

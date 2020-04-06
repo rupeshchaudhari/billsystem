@@ -6,7 +6,7 @@ import com.setu.billsystem.model.Data;
 import com.setu.billsystem.model.Error;
 
 @lombok.Data
-@JsonInclude(content = Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 public class FetchBillResponse {
     private Integer status;
     private Boolean success;

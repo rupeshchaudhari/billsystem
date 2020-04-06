@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.setu.billsystem.model.Bill;
 import com.setu.billsystem.model.BillDetails;
-import com.setu.billsystem.model.Customer;
 import com.setu.billsystem.model.CustomerAccount;
 import com.setu.billsystem.model.CustomerIdentifier;
 import com.setu.billsystem.model.Data;
@@ -33,11 +32,10 @@ public class BillServiceImpl implements BillService {
 	CustomerAccountRepository customerAccountRepository;
 	
 	@Override
-	public List<Bill> getCustomerBill(List<CustomerIdentifier> customerIdentifiers) {
+	public List<Bill> getCustomerBill(CustomerIdentifier customerIdentifier) {
 		
 		List<Bill> bills=null;
 		
-		for (CustomerIdentifier customerIdentifier : customerIdentifiers) {
 			if(customerIdentifier.getAttributeName()!=null && customerIdentifier.getAttributeValue()!=null)
 			{
 				if(customerIdentifier.getAttributeName().equalsIgnoreCase("mobileNumber")) {
@@ -48,7 +46,7 @@ public class BillServiceImpl implements BillService {
 					
 				}
 			}
-		}
+		
 		return bills;
 		
 	}
@@ -63,7 +61,7 @@ public class BillServiceImpl implements BillService {
 			{
 				CustomerAccount customerAccount = customerAccountRepository.findById(customerIdentifier.getAttributeValue());
 				if(customerAccount!=null) {
-					List<Bill> bills = getCustomerBill(billRequest.getCustomerIdentifiers());
+					List<Bill> bills = getCustomerBill(customerIdentifier);
 					Data data = new Data();
 					data.setCustomerAccount(customerAccount);
 					BillDetails billDetails = new BillDetails();
@@ -153,7 +151,6 @@ public class BillServiceImpl implements BillService {
 		
 		return fetchReceiptResponse;
 	}
-	
-	
+
 
 }
