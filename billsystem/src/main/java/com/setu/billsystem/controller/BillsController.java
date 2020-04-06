@@ -34,9 +34,15 @@ public class BillsController {
 		
 	}
 	
-	@GetMapping("/token")
-	public String getToken(){
-		return setuJwtHelper.yieldBearerToken();
+	@GetMapping("/bills/initialize")
+	public String initialize() {
+		billService.initialize();
+		return "Done";
 	}
+	
+//	@GetMapping("/token")
+//	public String getToken(){
+//		return setuJwtHelper.yieldBearerToken();
+//	}
 	
 }

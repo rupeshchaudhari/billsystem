@@ -23,4 +23,6 @@ public interface BillService {
 
 	List<Bill> getCustomerBill(CustomerIdentifier customerIdentifier);
 	
+	public void initialize();
+	
 }

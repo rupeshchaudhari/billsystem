@@ -152,5 +152,11 @@ public class BillServiceImpl implements BillService {
 		return fetchReceiptResponse;
 	}
 
+	@Override
+	public void initialize() {
+		billRepository.initialize();
+		
+	}
+
 
 }

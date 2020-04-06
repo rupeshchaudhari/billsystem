@@ -52,9 +52,9 @@ public class JwtFilter extends OncePerRequestFilter{
 			try {
 			jwt = setuJwtHelper.verifyBearerToken(authorization);
 			}catch(Exception e) {
-				System.out.println(e);
+				//System.out.println(e);
 			}
-			System.out.println(jwt);	
+			
 		}
 		
 		if(jwt!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
