@@ -114,6 +114,8 @@ public class BillServiceImpl implements BillService {
 		return bill;
 	}
 
+	
+	
 	@Override
 	public FetchReceiptResponse fetchReceiptResponse(FetchReceiptRequest fetchReceiptRequest) {
 		
@@ -123,7 +125,12 @@ public class BillServiceImpl implements BillService {
 		Bill bill = billRepository.findById(fetchReceiptRequest.getBillerBillID());
 		if(bill!=null) {
 			Double outstanding = bill.getAggregates().getTotal().getAmount().getValue();
-			bill.getAggregates().getTotal().getAmount().setValue(outstanding-paid);
+			Double remaining = outstanding - paid;
+			if(remaining<=0) {
+				billRepository.delete(bill);
+			}else {
+				bill.getAggregates().getTotal().getAmount().setValue(outstanding-paid);
+			}
 			fetchReceiptResponse.setStatus(200);
 			fetchReceiptResponse.setSuccess(true);
 			com.setu.billsystem.requestresponse.receipt.Data data = new com.setu.billsystem.requestresponse.receipt.Data();

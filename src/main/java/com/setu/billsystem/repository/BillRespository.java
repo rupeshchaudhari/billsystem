@@ -59,4 +59,9 @@ public class BillRespository{
 		bills.add(new Bill("12123131126", "2020-04-13T19:49:00Z", "MONTHLY", "EXACT", new CustomerAccount("8481778080", "Puneet"), new Aggregates(new Total("Total Outstanding", new Amount(102123.23)))));
 	}
 	
+	public Bill delete(Bill bill) {
+		bills.remove(bill);	
+		return bill;	
+	}
+	
 }
