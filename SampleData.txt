@@ -1,0 +1,28 @@
+Fetch Bill Sample Requests:
+
+{
+    "customerIdentifiers": [
+        {
+            "attributeName": "mobileNumber",
+            "attributeValue": "8481779999"
+        }
+    ]
+}
+
+{
+    "customerIdentifiers": [
+        {
+            "attributeName": "mobileNumber",
+            "attributeValue": "8208021440"
+        }
+    ]
+}
+
+{
+    "customerIdentifiers": [
+        {
+            "attributeName": "mobileNumber",
+            "attributeValue": "8481778080"
+        }
+    ]
+}
