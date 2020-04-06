@@ -1,0 +1,344 @@
+{
+	"info": {
+		"_postman_id": "97931a37-a371-4d5d-9cd1-05d5c3ae337c",
+		"name": "test-biller",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "fetchCustomerBills",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d4aa64fa-0cc1-461c-87ad-f39837cd2703",
+						"exec": [
+							"var schemeId = \"4331-9bbc-6b93265b-fbe98dae-20b4\";",
+							"var secret = '77521f510c0f-7e2f-40dc-a9d4-d05250325419';",
+							"",
+							"",
+							"var jti = Math.floor(Math.random()*1e15) + '';",
+							"",
+							"function base64url(source) {",
+							"\t// Encode in classical base64",
+							"\tencodedSource = CryptoJS.enc.Base64.stringify(source);",
+							"",
+							"\t// Remove padding equal characters",
+							"\tencodedSource = encodedSource.replace(/=+$/, '');",
+							"",
+							"\t// Replace characters according to base64url specifications",
+							"\tencodedSource = encodedSource.replace(/\\+/g, '-');",
+							"\tencodedSource = encodedSource.replace(/\\//g, '_');",
+							"",
+							"\treturn encodedSource;",
+							"}",
+							"",
+							"function addIAT(request) {",
+							"\tvar iat = Math.floor(Date.now() / 1000);",
+							"\tdata.iat = iat;",
+							"\treturn data;",
+							"}",
+							"",
+							"",
+							"var header = {",
+							"\t\"typ\": \"JWT\",",
+							"\t\"alg\": \"HS256\"",
+							"};",
+							"",
+							"var data = {",
+							"\t\"aud\": schemeId,",
+							"\t\"jti\": jti",
+							"};",
+							"",
+							"data = addIAT(data);",
+							"",
+							"",
+							"",
+							"// encode header",
+							"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));",
+							"var encodedHeader = base64url(stringifiedHeader);",
+							"",
+							"// encode data",
+							"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data));",
+							"console.log(data)",
+							"var encodedData = base64url(stringifiedData);",
+							"",
+							"// build token",
+							"var token = encodedHeader + \".\" + encodedData;",
+							"",
+							"// sign token",
+							"var signature = CryptoJS.HmacSHA256(token, secret);",
+							"signature = base64url(signature);",
+							"var signedToken = token + \".\" + signature;",
+							"console.log(signedToken);",
+							"postman.setEnvironmentVariable(\"BearerToken\", \"Bearer \" + signedToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "3c6bef9c-d8f4-4cfd-888a-5188a3a7d37c",
+						"exec": [
+							"var dateRe = /^20(16|17|18|19|20|21|22)-(0[1-9]|1([1-2]))-((0[1-9])|([12][0-9])|(3[01]))T(([01][0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9])Z$/;",
+							"var intRe = /^\\d/;",
+							"",
+							"",
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response must be valid and have a body\", function () {",
+							"     // assert that the status code is 200",
+							"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+							"     // assert that the response has a valid JSON body",
+							"     pm.response.to.be.withBody;",
+							"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+							"});",
+							"pm.test(\"response structure should be correct\", function(){",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.exist;",
+							"    pm.expect(jsonData.success).to.to.be.true;",
+							"    pm.expect(jsonData.status).to.to.be.equal(200);",
+							"})",
+							"",
+							"pm.test(\"billObject(s) should be valid\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.exist;",
+							"    var customerName = jsonData.data.customerAccount.name;",
+							"    pm.expect(customerName).to.exist;",
+							"    var billFetchStatus = jsonData.data.billDetails.billFetchStatus;",
+							"    pm.expect(billFetchStatus).to.be.equal(\"AVAILABLE\");",
+							"    var bills = jsonData.data.billDetails.bills;",
+							"    pm.expect(bills.length > 0).to.be.true;",
+							"    for(var i=0; i< bills.length; i++){",
+							"        var bill = bills[i];",
+							"        pm.expect(bill.billerBillID).to.exist;",
+							"        pm.expect(dateRe.test(bill.generatedOn)).to.be.true;",
+							"        if(bill.dueDate){",
+							"            console.log(bill.dueDate)",
+							"            pm.expect(dateRe.test(bill.dueDate)).to.be.true;",
+							"        }",
+							"        pm.expect(bill.recurrence).to.be.oneOf(['ONE_TIME', \"WEEKLY\", \"DAILY\", \"MONTHLY\", \"FORTNIGHTY\", \"YEARLY\", \"HALF_YEARLY\", \"QUARTERLY\"]);",
+							"        pm.expect(bill.recurrence).to.exist;",
+							"        pm.expect(bill.amountExactness).to.be.oneOf(['EXACT', \"EXACT_UP\", \"EXACT_DOWN\", \"RANGE\", \"ANY\"]);",
+							"        pm.expect(bill.customerAccount).to.exist;",
+							"        pm.expect(bill.customerAccount.id).to.exist;",
+							"        pm.expect(bill.aggregates).to.exist;",
+							"        pm.expect(bill.aggregates.total).to.exist;",
+							"        pm.expect(bill.aggregates.total.displayName).to.exist;",
+							"        pm.expect(bill.aggregates.total.amount).to.exist;",
+							"        pm.expect(intRe.test(bill.aggregates.total.amount.value)).to.be.true;",
+							"    }",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{BearerToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customerIdentifiers\": [\n        {\n            \"attributeName\": \"mobileNumber\",\n            \"attributeValue\": \"8481779999\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "https://billsystemtest.herokuapp.com/bills/fetch",
+					"protocol": "https",
+					"host": [
+						"billsystemtest",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"bills",
+						"fetch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchReceipt",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6632cbea-c790-4343-ad93-1f39a36e63c5",
+						"exec": [
+							"var schemeId = \"4331-9bbc-6b93265b-fbe98dae-20b4\";",
+							"var secret = '77521f510c0f-7e2f-40dc-a9d4-d05250325419';",
+							"",
+							"",
+							"var jti = Math.floor(Math.random()*1e15) + '';",
+							"",
+							"function base64url(source) {",
+							"\t// Encode in classical base64",
+							"\tencodedSource = CryptoJS.enc.Base64.stringify(source);",
+							"",
+							"\t// Remove padding equal characters",
+							"\tencodedSource = encodedSource.replace(/=+$/, '');",
+							"",
+							"\t// Replace characters according to base64url specifications",
+							"\tencodedSource = encodedSource.replace(/\\+/g, '-');",
+							"\tencodedSource = encodedSource.replace(/\\//g, '_');",
+							"",
+							"\treturn encodedSource;",
+							"}",
+							"",
+							"function addIAT(request) {",
+							"\tvar iat = Math.floor(Date.now() / 1000);",
+							"\tdata.iat = iat;",
+							"\treturn data;",
+							"}",
+							"",
+							"",
+							"var header = {",
+							"\t\"typ\": \"JWT\",",
+							"\t\"alg\": \"HS256\"",
+							"};",
+							"",
+							"var data = {",
+							"\t\"aud\": schemeId,",
+							"\t\"jti\": jti",
+							"};",
+							"",
+							"data = addIAT(data);",
+							"",
+							"",
+							"",
+							"// encode header",
+							"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));",
+							"var encodedHeader = base64url(stringifiedHeader);",
+							"",
+							"// encode data",
+							"var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data));",
+							"console.log(data)",
+							"var encodedData = base64url(stringifiedData);",
+							"",
+							"// build token",
+							"var token = encodedHeader + \".\" + encodedData;",
+							"",
+							"// sign token",
+							"var signature = CryptoJS.HmacSHA256(token, secret);",
+							"signature = base64url(signature);",
+							"var signedToken = token + \".\" + signature;",
+							"console.log(signedToken);",
+							"postman.setEnvironmentVariable(\"BearerToken\", \"Bearer \" + signedToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "0ba59af9-2f49-4627-88ea-8315089d219b",
+						"exec": [
+							"var dateRe = /^20(16|17|18|19|20|21|22)-(0[1-9]|1([1-2]))-((0[1-9])|([12][0-9])|(3[01]))T(([01][0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9])Z$/;",
+							"var intRe = /^\\d+$/;",
+							"",
+							"",
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"response must be valid and have a body\", function () {",
+							"     // assert that the status code is 200",
+							"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+							"     // assert that the response has a valid JSON body",
+							"     pm.response.to.be.withBody;",
+							"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+							"});",
+							"pm.test(\"response structure should be correct\", function(){",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.exist;",
+							"    pm.expect(jsonData.success).to.to.be.true;",
+							"    pm.expect(jsonData.status).to.to.be.equal(200);",
+							"})",
+							"",
+							"pm.test(\"receipt Response to be be valid\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var request_data = JSON.parse(pm.request.body.raw);",
+							"    console.log(request_data)",
+							"    pm.expect(jsonData.data).to.exist;",
+							"    var receipt = jsonData.data.receipt;",
+							"    pm.expect(receipt.id).to.exist;",
+							"    pm.expect(dateRe.test(receipt.date)).to.be.true;",
+							"    pm.expect(jsonData.data.billerBillID).to.be.equal(request_data.billerBillID);",
+							"    pm.expect(jsonData.data.platformBillID).to.be.equal(request_data.platformBillID);",
+							"    pm.expect(jsonData.data.platformTransactionRefID).to.be.equal(request_data.paymentDetails.platformTransactionRefID);",
+							"    ",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "{{BearerToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"billerBillID\"   : \"12123131123\",\n    \"platformBillID\" : \"SETU121341312121\",\n    \"paymentDetails\" : {\n        \"platformTransactionRefID\" : \"TXN12121219\",\n        \"uniquePaymentRefID\"       : \"XXXXAYYDDD999999\",\n        \"amountPaid\" : {\n            \"value\" : 75399.5 \n        },\n        \"billAmount\" : {\n            \"value\" : 75399.5\n        }\n    }\n}"
+				},
+				"url": {
+					"raw": "https://billsystemtest.herokuapp.com/bills/fetchReceipt",
+					"protocol": "https",
+					"host": [
+						"billsystemtest",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"bills",
+						"fetchReceipt"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
